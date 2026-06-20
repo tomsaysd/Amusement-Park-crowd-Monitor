@@ -1,0 +1,17 @@
+# Core (local development -- no cloud account needed)
+pandas
+numpy
+matplotlib
+
+# App (local heatmap UI)
+streamlit
+folium
+streamlit-folium
+
+# Cloud adapters (only needed when you deploy to GCP)
+google-cloud-pubsub
+google-cloud-firestore
+functions-framework
+
+# Prediction page chart
+altair
