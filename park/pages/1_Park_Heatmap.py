@@ -12,6 +12,7 @@ import pandas as pd
 import streamlit as st
 from folium.plugins import HeatMap
 from streamlit_folium import st_folium
+from pathlib import Path
 
 
 REFRESH_S   = 5   # seconds between in-place updates
@@ -47,11 +48,11 @@ def build_map(df: pd.DataFrame) -> folium.Map:
     m.options["maxBoundsViscosity"] = 1.0 
 
     # Image extraction
-    if os.path.exists("park_map.png"):
+    MAP_PATH = Path(__file__).parent.parent / "park_map.png"
+
+    if MAP_PATH.exists():
         folium.raster_layers.ImageOverlay(
-            image="park_map.png",
-            bounds=bounds, opacity=1.0, zindex=1,
-        ).add_to(m)
+            image=str(MAP_PATH),
 
     heat = [[fy(r.y), float(r.x), float(r.occupency)]
             for r in df.itertuples()]
