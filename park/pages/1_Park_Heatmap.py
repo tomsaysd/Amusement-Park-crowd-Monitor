@@ -47,12 +47,16 @@ def build_map(df: pd.DataFrame) -> folium.Map:
     m.options["maxBounds"] = bounds       # can't pan off the image
     m.options["maxBoundsViscosity"] = 1.0 
 
-    # Image extraction
-    MAP_PATH = Path(__file__).parent.parent / "park_map.png"
 
-    if MAP_PATH.exists():
-        folium.raster_layers.ImageOverlay(
-            image=str(MAP_PATH),
+# Image extraction
+MAP_PATH = Path(__file__).parent.parent / "park_map.png"
+
+if MAP_PATH.exists():
+    folium.raster_layers.ImageOverlay(
+        image=str(MAP_PATH),
+        bounds=bounds,
+        opacity=1,
+    ).add_to(m)
 
     heat = [[fy(r.y), float(r.x), float(r.occupency)]
             for r in df.itertuples()]
