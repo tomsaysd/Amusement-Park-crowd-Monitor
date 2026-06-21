@@ -5,26 +5,31 @@ seconds.
 """
 
 import os
-import sqlite3
 import time
-
+from bigquery_reader import load_history
 import folium
 import pandas as pd
 import streamlit as st
 from folium.plugins import HeatMap
 from streamlit_folium import st_folium
 
-DB_PATH     = "park_data.sqlite"
+
 REFRESH_S   = 5   # seconds between in-place updates
 
 
 def load_current() -> pd.DataFrame:
     try:
-        con = sqlite3.connect(DB_PATH)
-        df  = pd.read_sql("SELECT * FROM live_status", con)
-        con.close()
-        return df
-    except Exception:
+        df = load_history()
+
+        if df.empty:
+            return df
+
+        latest_minute = df["park_min"].max()
+
+        return df[df["park_min"] == latest_minute]
+
+    except Exception as e:
+        print(e)
         return pd.DataFrame()
 
 
@@ -32,9 +37,9 @@ def build_map(df: pd.DataFrame) -> folium.Map:
     def fy(y):                    
         return 100.0 - float(y)     # (100 - y) flips the y so the map reads naturally, with the entrance at the top.
 
-    bounds = [[0, 0], [100, 100]]    # [[lat_min,lng_min],[lat_max,lng_max]]
+    bounds = [[10, 15], [90, 90]]    # [[lat_min,lng_min],[lat_max,lng_max]]
 
-    m = folium.Map(location=[50, 50], zoom_start=3, crs="Simple", tiles=None,max_bounds=True)
+    m = folium.Map(location=[50, 50], zoom_start=5, crs="Simple", tiles=None,max_bounds=True)
     m.fit_bounds(bounds)
     m.options["minZoom"] = 3            # can't zoom out past the whole image
     m.options["maxZoom"] = 6          
@@ -119,10 +124,15 @@ def render():
                       top_wait.ride_name)
             c4.metric("Simulated minute",      f"{minute} / 720")
 
-        # --- MAP ---
+       # --- MAP ---
         with map_ph.container():
-            st_folium(build_map(df), width=750, height=520,
-                      returned_objects=[])
+            st_folium(
+                build_map(df),
+                width=1200,
+                height=700,
+                returned_objects=[],
+                key=f"park_heatmap_{time.time()}"
+            )
 
         # --- WAIT TIME SIDEBAR ---
         with waits_ph.container():

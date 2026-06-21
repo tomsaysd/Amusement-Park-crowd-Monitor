@@ -2,23 +2,12 @@
 The queue-time prediction logic, kept separate from UI so it can be tested
 on its own and reused.
 """
-
-import sqlite3
+from bigquery_reader import load_history
 import pandas as pd
 
 
 def hour_from_minute(park_min: int) -> int:
     return 9 + park_min // 60
-
-
-def load_history(db_path="park_data.sqlite") -> pd.DataFrame:
-    con = sqlite3.connect(db_path)
-    df = pd.read_sql("SELECT * FROM ride_history", con)
-    con.close()
-    if df.empty:
-        return df
-    df["hour"] = 9 + df["park_min"] // 60
-    return df
 
 
 def predicted_wait_by_hour(history: pd.DataFrame) -> pd.DataFrame:
@@ -28,6 +17,7 @@ def predicted_wait_by_hour(history: pd.DataFrame) -> pd.DataFrame:
                AVG(wait_mins) predicted_wait
         FROM ride_history GROUP BY ride_name, hour
     """
+    history["hour"] = history["timestamp"].dt.hour
     return (history.groupby(["ride_name", "hour"])["wait_mins"]
                    .mean().reset_index()
                    .rename(columns={"wait_mins": "predicted_wait"}))

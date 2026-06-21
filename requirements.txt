@@ -1,17 +1,19 @@
-# Core (local development -- no cloud account needed)
+# Data
 pandas
 numpy
 matplotlib
 
-# App (local heatmap UI)
+# Streamlit UI
 streamlit
 folium
 streamlit-folium
+altair
 
-# Cloud adapters (only needed when you deploy to GCP)
+# Google Cloud
 google-cloud-pubsub
+google-cloud-bigquery
 google-cloud-firestore
 functions-framework
 
-# Prediction page chart
-altair
+# BigQuery dataframe support
+db-dtypes

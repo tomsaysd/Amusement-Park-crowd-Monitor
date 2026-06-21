@@ -35,7 +35,7 @@ if history.empty:
     )
     st.stop()
 
-days = history.timestamp.str[:10].nunique() if "timestamp" in history else 1
+days = history["timestamp"].dt.date.nunique() if "timestamp" in history else 1
 st.caption(f"Trained on {len(history):,} readings across ~{days} simulated day(s).")
 
 rides = sorted(history.ride_name.unique())
