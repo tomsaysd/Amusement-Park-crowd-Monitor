@@ -167,15 +167,15 @@ class Simulation:
             wait = round(qlen / r.throughput_per_min, 1)
             records.append({
                 "timestamp": clock.isoformat(),
-                "park_minute": self.minute,
+                "park_min": self.minute,
                 "zone_id": r.zone_id,
                 "ride_id": r.ride_id,
                 "ride_name": r.name,
                 "x": r.x, "y": r.y,
                 "queue_length": qlen,
                 "riders": riders,
-                "occupancy": qlen + riders,         # how crowded this ride is
-                "wait_minutes": wait,
+                "occupency": qlen + riders,         # how crowded this ride is
+                "wait_mins": wait,
                 "throughput_per_min": r.throughput_per_min,
             })
         self.minute += 1

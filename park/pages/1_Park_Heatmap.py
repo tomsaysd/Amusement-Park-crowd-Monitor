@@ -48,26 +48,26 @@ def build_map(df: pd.DataFrame) -> folium.Map:
             bounds=bounds, opacity=1.0, zindex=1,
         ).add_to(m)
 
-    heat = [[fy(r.y), float(r.x), float(r.occupancy)]
+    heat = [[fy(r.y), float(r.x), float(r.occupency)]
             for r in df.itertuples()]
     HeatMap(heat, radius=35, blur=25, max_zoom=6, min_opacity=0.35).add_to(m)
 
     for r in df.itertuples():
         color = (
-            "#d73027" if r.wait_minutes >= 20 else
-            "#fc8d59" if r.wait_minutes >= 10 else
-            "#fee090" if r.wait_minutes >= 5  else
+            "#d73027" if r.wait_mins >= 20 else
+            "#fc8d59" if r.wait_mins >= 10 else
+            "#fee090" if r.wait_mins >= 5  else
             "#91cf60"
         )
         folium.CircleMarker(
             [fy(r.y), float(r.x)], radius=7,
             color="#222", weight=1,
             fill=True, fill_color=color, fill_opacity=0.95,
-            tooltip=f"{r.ride_name}  —  {r.wait_minutes:.0f} min wait",
+            tooltip=f"{r.ride_name}  —  {r.wait_mins:.0f} min wait",
             popup=folium.Popup(
                 f"<b>{r.ride_name}</b><br>"
-                f"Wait: <b>{r.wait_minutes:.0f} min</b><br>"
-                f"Occupancy: {r.occupancy}",
+                f"Wait: <b>{r.wait_mins:.0f} min</b><br>"
+                f"occupency: {r.occupency}",
                 max_width=160,
             ),
         ).add_to(m)
@@ -105,9 +105,9 @@ def render():
             time.sleep(2)
             continue
 
-        minute       = int(df.park_minute.iloc[0])
-        total_guests = int(df.occupancy.sum())
-        top_wait     = df.loc[df.wait_minutes.idxmax()]
+        minute       = int(df.park_min.iloc[0])
+        total_guests = int(df.occupency.sum())
+        top_wait     = df.loc[df.wait_mins.idxmax()]
 
         # --- HEADER METRICS ---
         with header_ph.container():
@@ -115,7 +115,7 @@ def render():
             c1.metric("Simulated time",        clock_str(minute))
             c2.metric("Guests in rides/queues", total_guests)
             c3.metric("Longest wait",
-                      f"{top_wait.wait_minutes:.0f} min",
+                      f"{top_wait.wait_mins:.0f} min",
                       top_wait.ride_name)
             c4.metric("Simulated minute",      f"{minute} / 720")
 
@@ -127,13 +127,13 @@ def render():
         # --- WAIT TIME SIDEBAR ---
         with waits_ph.container():
             st.subheader("Longest waits")
-            for r in df.sort_values("wait_minutes", ascending=False).head(5).itertuples():
-                st.metric(r.ride_name, f"{r.wait_minutes:.0f} min",
-                          f"{r.occupancy} guests", delta_color="off")
+            for r in df.sort_values("wait_mins", ascending=False).head(5).itertuples():
+                st.metric(r.ride_name, f"{r.wait_mins:.0f} min",
+                          f"{r.occupency} guests", delta_color="off")
             st.divider()
             st.subheader("Walk right on")
-            for r in df.sort_values("wait_minutes").head(3).itertuples():
-                st.metric(r.ride_name, f"{r.wait_minutes:.0f} min wait")
+            for r in df.sort_values("wait_mins").head(3).itertuples():
+                st.metric(r.ride_name, f"{r.wait_mins:.0f} min wait")
 
         status_ph.caption(f"Last updated: {clock_str(minute)}  —  "
                           f"refreshing every {REFRESH_S}s")

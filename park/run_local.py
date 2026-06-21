@@ -15,6 +15,7 @@ import time
 import pandas as pd
 
 from simulator import Simulation
+from pubsub_publisher import publish_records
 
 
 DB_PATH = "park_data.sqlite"
@@ -33,15 +34,15 @@ def init_db(con: sqlite3.Connection):
             y                REAL,
             queue_length     INTEGER,
             riders           INTEGER,
-            occupancy        INTEGER,
-            wait_minutes     REAL,
-            park_minute      INTEGER,
+            occupency        INTEGER,
+            wait_mins        REAL,
+            park_min         INTEGER,
             timestamp        TEXT
         );
 
         CREATE TABLE IF NOT EXISTS ride_history (
             timestamp        TEXT,
-            park_minute      INTEGER,
+            park_min         INTEGER,
             zone_id          TEXT,
             ride_id          TEXT,
             ride_name        TEXT,
@@ -49,8 +50,8 @@ def init_db(con: sqlite3.Connection):
             y                REAL,
             queue_length     INTEGER,
             riders           INTEGER,
-            occupancy        INTEGER,
-            wait_minutes     REAL,
+            occupency        INTEGER,
+            wait_mins        REAL,
             throughput_per_min INTEGER
         );
     """)
@@ -64,14 +65,14 @@ def write_minute(con: sqlite3.Connection, records: list[dict]):
         con.execute("""
             INSERT INTO live_status VALUES
                 (:ride_id, :ride_name, :zone_id, :x, :y,
-                 :queue_length, :riders, :occupancy, :wait_minutes,
-                 :park_minute, :timestamp)
+                 :queue_length, :riders, :occupency, :wait_mins,
+                 :park_min, :timestamp)
             ON CONFLICT(ride_id) DO UPDATE SET
                 queue_length  = excluded.queue_length,
                 riders        = excluded.riders,
-                occupancy     = excluded.occupancy,
-                wait_minutes  = excluded.wait_minutes,
-                park_minute   = excluded.park_minute,
+                occupency     = excluded.occupency,
+                wait_mins     = excluded.wait_mins,
+                park_min      = excluded.park_min,
                 timestamp     = excluded.timestamp
         """, r)
     pd.DataFrame(records).to_sql(
@@ -109,14 +110,17 @@ def main():
 
     while sim.minute <= 720:
         records = sim.step()
+
+        publish_records(records)
+
         write_minute(con, records)
 
-        total_occ = sum(r["occupancy"] for r in records)
-        top = max(records, key=lambda r: r["wait_minutes"])
+        total_occ = sum(r["occupency"] for r in records)
+        top = max(records, key=lambda r: r["wait_mins"])
         print(
             f"  {clock_str(sim.minute - 1)}  "
             f"guests in rides/queues: {total_occ:>4}  "
-            f"longest wait: {top['ride_name']} {top['wait_minutes']:.0f}min"
+            f"longest wait: {top['ride_name']} {top['wait_mins']:.0f}min"
         )
 
         time.sleep(sleep_s)

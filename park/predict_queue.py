@@ -7,8 +7,8 @@ import sqlite3
 import pandas as pd
 
 
-def hour_from_minute(park_minute: int) -> int:
-    return 9 + park_minute // 60
+def hour_from_minute(park_min: int) -> int:
+    return 9 + park_min // 60
 
 
 def load_history(db_path="park_data.sqlite") -> pd.DataFrame:
@@ -17,7 +17,7 @@ def load_history(db_path="park_data.sqlite") -> pd.DataFrame:
     con.close()
     if df.empty:
         return df
-    df["hour"] = 9 + df["park_minute"] // 60
+    df["hour"] = 9 + df["park_min"] // 60
     return df
 
 
@@ -25,12 +25,12 @@ def predicted_wait_by_hour(history: pd.DataFrame) -> pd.DataFrame:
     """Average wait per ride per hour -- the core prediction table.
     In BigQuery this is literally:
         SELECT ride_name, EXTRACT(HOUR FROM timestamp) hour,
-               AVG(wait_minutes) predicted_wait
+               AVG(wait_mins) predicted_wait
         FROM ride_history GROUP BY ride_name, hour
     """
-    return (history.groupby(["ride_name", "hour"])["wait_minutes"]
+    return (history.groupby(["ride_name", "hour"])["wait_mins"]
                    .mean().reset_index()
-                   .rename(columns={"wait_minutes": "predicted_wait"}))
+                   .rename(columns={"wait_mins": "predicted_wait"}))
 
 
 def predict(history: pd.DataFrame, ride_name: str, hour: int) -> float | None:

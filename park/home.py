@@ -17,7 +17,7 @@ def data_status() -> str:
     simulator is feeding data before you click into a feature."""
     try:
         con = sqlite3.connect(DB_PATH)
-        cur = con.execute("SELECT MAX(park_minute) FROM live_status")
+        cur = con.execute("SELECT MAX(park_min) FROM live_status")
         minute = cur.fetchone()[0]
         con.close()
         if minute is None:
