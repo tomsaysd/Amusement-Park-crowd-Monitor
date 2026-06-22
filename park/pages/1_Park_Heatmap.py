@@ -12,29 +12,14 @@ import streamlit as st
 from folium.plugins import HeatMap
 from streamlit_folium import st_folium
 
-from bigquery_reader import load_history
+from bigquery_reader import load_history, load_latest
 
 REFRESH_S = 6
 
 
 def load_current() -> pd.DataFrame:
     try:
-        df = load_history()
-
-        if df.empty:
-            return df
-
-        if "replay_minute" not in st.session_state:
-            st.session_state.replay_minute = int(df["park_min"].min())
-
-        minute = st.session_state.replay_minute
-
-        current_df = df[df["park_min"] == minute]
-
-        st.session_state.replay_minute += 1
-
-        return current_df
-
+        return load_latest()
     except Exception as e:
         print(e)
         return pd.DataFrame()

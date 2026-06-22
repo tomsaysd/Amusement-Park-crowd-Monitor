@@ -1,3 +1,8 @@
+'''
+Isolated test for pubsub publisher. 
+Publishes a single JSON message to the "ride-events" topic.
+'''
+
 from google.cloud import pubsub_v1
 import json
 

@@ -1,5 +1,9 @@
-from google.cloud import pubsub_v1
-from google.cloud import bigquery
+'''
+Standard subscriber for the amusement park crowd monitor app. 
+This subscriber listens to the "ride-events" topic and inserts the data into BigQuery.
+'''
+
+from google.cloud import pubsub_v1, bigquery
 import json
 
 PROJECT_ID = "amusement-park-crowd-monitor"

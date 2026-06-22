@@ -1,3 +1,8 @@
+'''
+Isolated test for BigQuery insertion.
+Inserts a single row into the "ride_history" table.
+'''
+
 from google.cloud import bigquery
 
 client = bigquery.Client()

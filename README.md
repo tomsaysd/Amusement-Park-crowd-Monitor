@@ -28,11 +28,10 @@ streamlit run home.py
 ```
 
 
-## Architecture (for when we go to the cloud)
+## Architecture (For Cloud Deployment)
 
 Simulated guests move around the park → each crowd reading is published once →
-it fans out to a fast store for the **live heatmap** and a warehouse for
-**analytics/predictions** → the app reads both.
+it fans out to a warehouse for **analytics/predictions** → both app features read from this.
 
 | Stage | Service | Why it's here | File |
 |------|---------|---------------|------|
@@ -41,6 +40,10 @@ it fans out to a fast store for the **live heatmap** and a warehouse for
 | Transport | Pub/Sub | One message → different concerns (fanout) | (topic + multiple subs) |
 | Database | BigQuery | Stores every reading; trend/prediction queries | `cloud/bigquery_setup.sql` |
 | App | Cloud Run | Primary app features display | `home.py` |
+
+This represents the current active cloud services we have used. In an actual system there could be more changes
+made. For instance, heatmap calculation (being a real-time analytical process) could retrieve from a fast store
+and ride predictions (being a historical predictive process) could retrieve from a cold store.
 
 
 ## Tuning the simulation

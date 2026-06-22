@@ -2,11 +2,8 @@
 Landing page for the Park Crowd Monitor app.
 """
 
-import sqlite3
-
 import streamlit as st
-
-DB_PATH = "park_data.sqlite"
+from bigquery_reader import load_history
 
 st.set_page_config(page_title="Park Crowd Monitor", page_icon="🎡",
                    layout="wide")
@@ -15,17 +12,14 @@ st.set_page_config(page_title="Park Crowd Monitor", page_icon="🎡",
 def data_status() -> str:
     """A small live/!live indicator so the landing page tells you whether the
     simulator is feeding data before you click into a feature."""
+
     try:
-        con = sqlite3.connect(DB_PATH)
-        cur = con.execute("SELECT MAX(park_min) FROM live_status")
-        minute = cur.fetchone()[0]
-        con.close()
-        if minute is None:
+        df = load_history()
+        if df.empty:
             return "no-data"
-        return f"live (minute {minute})"
+        return f"data present (latest minute {int(df['park_min'].max())})"
     except Exception:
         return "no-data"
-
 
 st.markdown("<h1><b>AMUSEMENT PARK CROWD MONITOR</b></h1>", unsafe_allow_html=True)
 st.markdown("<h2><i>A simulated crowd-intelligence app for an amusement park</i></h2>", unsafe_allow_html=True)
