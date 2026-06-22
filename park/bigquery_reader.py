@@ -15,3 +15,11 @@ def load_history():
     """
 
     return client.query(query).to_dataframe()
+
+def load_latest():
+    query = f"""
+    SELECT *
+    FROM `{PROJECT_ID}.{DATASET}.{TABLE}`
+    WHERE timestamp = (SELECT MAX(timestamp) FROM `{PROJECT_ID}.{DATASET}.{TABLE}`)
+    """
+    return client.query(query).to_dataframe()
