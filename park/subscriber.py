@@ -1,13 +1,13 @@
 '''
 Standard subscriber for the amusement park crowd monitor app. 
-This subscriber listens to the "ride-events" topic and inserts the data into BigQuery.
+This subscriber listens to the "ride_events" topic and inserts the data into BigQuery.
 '''
 
 from google.cloud import pubsub_v1, bigquery
 import json
 
 PROJECT_ID = "amusement-park-crowd-monitor"
-SUBSCRIPTION_ID = "ride-events-sub"
+SUBSCRIPTION_ID = "ride_events_sub"
 
 subscriber = pubsub_v1.SubscriberClient()
 bq_client = bigquery.Client()
